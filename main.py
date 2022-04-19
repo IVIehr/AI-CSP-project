@@ -2,6 +2,10 @@ from time import time
 from Binairo import check_termination, is_consistent
 from Cell import *
 from State import *
+from VarDomains import VarDomains
+import os
+
+os.system('color')
 
 FAIL = 0xABCD
 
@@ -14,7 +18,6 @@ def main():
         n = [int(number) for number in numbers]
         input_numbers.append(n)
 
-
     board = []
     size_puzzle = input_numbers[0][0]
     for i in range(0,size_puzzle):
@@ -25,16 +28,20 @@ def main():
             row.append(cell)
         board.append(row)
 
+    vd = VarDomains(size_puzzle)
+
     for i in range(2,len(input_numbers)) :
-
-
         if input_numbers[i][2]==0 : # w
-            board[input_numbers[i][0]][input_numbers[i][1]].set_val('W')
+            board[input_numbers[i][0]][input_numbers[i][1]].set_val('w')
+            board[input_numbers[i][0]][input_numbers[i][1]].preset = True
+            vd.set_val(board, input_numbers[i][0], input_numbers[i][1], 'w', True)
             # board[input_numbers[i][0]][input_numbers[i][1]].value='W'
             # board[input_numbers[i][0]][input_numbers[i][1]].domain=['n']
 
         if input_numbers[i][2]==1 :  # b
-            board[input_numbers[i][0]][input_numbers[i][1]].set_val('B')
+            board[input_numbers[i][0]][input_numbers[i][1]].set_val('b')
+            board[input_numbers[i][0]][input_numbers[i][1]].preset = True
+            vd.set_val(board, input_numbers[i][0], input_numbers[i][1], 'b', True)
             # board[input_numbers[i][0]][input_numbers[i][1]].value='B'
             # board[input_numbers[i][0]][input_numbers[i][1]].domain=['n']
 
@@ -42,10 +49,15 @@ def main():
     print('================= Initial Board ================')
     state.print_board()
     print('\n')
+    print('================= Variable domains ================')
+    vd.print()
+    print('\n')
     start_time = time()
 
     print('================ Solution Board ================')
-    result = backTrack(state)
+    result = backTrack(state, vd)
+    # result = backTrackNormal(state)
+    # result = FAIL
     if result == FAIL:
         print('No solution found :(')
     else:
@@ -56,7 +68,31 @@ def main():
 
 
 
-def backTrack(state):
+def backTrack(state, vd):
+    if not is_consistent(state):
+        return FAIL
+    if check_termination(state):
+        return state
+
+    # Select next empty cell
+    i, j = state.next_empty_cell()
+    # if i == None:
+    #     return FAIL
+
+    for val in vd.get_domain(i ,j):
+        state.board[i][j].set_val(val)
+        new_vd = vd.set_val(state.board, i, j, val)
+        if not new_vd.any_empty():
+            result = backTrack(state, new_vd)
+            if result != FAIL:
+                return result
+        state.board[i][j].remove_val()
+
+    return FAIL
+
+
+
+def backTrackNormal(state):
     if check_termination(state):
         return state
 
@@ -66,7 +102,7 @@ def backTrack(state):
     for val in state.board[i][j].domain:
         state.board[i][j].set_val(val)
         if is_consistent(state):
-            result = backTrack(state)
+            result = backTrackNormal(state)
             if result != FAIL:
                 return result
         state.board[i][j].remove_val()

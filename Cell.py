@@ -4,6 +4,7 @@ class Cell:
         self.y = y
         self.domain = domain
         self.value = value
+        self.preset = False
 
 
     def is_empty(self):

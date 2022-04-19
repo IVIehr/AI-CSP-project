@@ -20,30 +20,29 @@ class State:
         b_sqr= '\u2B1B'
         line = '\u23E4'
 
-        whtieCircle = 'W'
-        blackCircle = 'B'
-        w_sqr='d'
-        b_sqr= 'D'
-        line = '_'
+        whtieCircle = 'w '
+        blackCircle = 'b '
+        w_sqr='W '
+        b_sqr= 'B '
+        line = '--'
 
         for i in range(self.size):
             for j in range(self.size):
                 if (self.board[i][j].value == 'b'):
-                    print(blackCircle, end='  ')
-                elif (self.board[i][j].value == 'B'):
-                    print(b_sqr, end='  ')
-
-                elif (self.board[i][j].value == 'W') :
-                    print(w_sqr,end='  ')
+                    if self.board[i][j].preset:
+                        print(b_sqr, end='  ')
+                    else:
+                        print(blackCircle, end='  ')
 
                 elif (self.board[i][j].value == 'w'):
-                    print(whtieCircle, end='  ')
+                    if self.board[i][j].preset:
+                        print(w_sqr,end='  ')
+                    else:
+                        print(whtieCircle,end='  ')
                 else:
-                    print(line,end='')
                     print(line,end='')
                     print(end='  ')
 
-            print()
             print()
 
 
