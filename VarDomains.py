@@ -13,6 +13,19 @@ class VarDomains:
         return self.domains[i][j]
 
 
+    def mrv(self, board):
+        min_d = 100
+        min_pair = (None, None)
+        for i in range(self.size):
+            for j in range(self.size):
+                if board[i][j].is_empty():
+                    d = len(self.domains[i][j])
+                    if d < min_d:
+                        min_d = d
+                        min_pair = (i, j)
+        return min_pair
+
+
     def remove_from_domain(self, board, i, j, val, pr=False):
         if val in self.domains[i][j] and board[i][j].is_empty():
             # if pr:

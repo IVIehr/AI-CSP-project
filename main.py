@@ -75,7 +75,8 @@ def backTrack(state, vd):
         return state
 
     # Select next empty cell
-    i, j = state.next_empty_cell()
+    # i, j = state.next_empty_cell()
+    i, j = vd.mrv(state.board)
     # if i == None:
     #     return FAIL
 
