@@ -3,15 +3,12 @@ from Binairo import check_termination, is_consistent
 from Cell import *
 from State import *
 from VarDomains import VarDomains
-import os
-
-os.system('color')
 
 FAIL = 0xABCD
 
 def main():
     input_numbers = []  ## first row = size of puzzle(n)  ## second row = number of cells that have color in the statrt  (m)  ## row 3 to row 3+m :
-    input = open("input2.txt").readlines()
+    input = open("testcase/input2.txt").readlines()
     for line in input:
         line = line.rstrip()
         numbers = line.split(' ')
@@ -46,41 +43,42 @@ def main():
             # board[input_numbers[i][0]][input_numbers[i][1]].domain=['n']
 
     state = State(size_puzzle,board)
-    print('================= Initial Board ================')
+    print('================= Initial Board ===================')
     state.print_board()
-    print('\n')
-    print('================= Variable domains ================')
-    vd.print()
-    print('\n')
+    print()
     start_time = time()
 
-    print('================ Solution Board ================')
+    print('================ Solution Board ===================')
     result = backTrack(state, vd)
     # result = backTrackNormal(state)
-    # result = FAIL
     if result == FAIL:
-        print('No solution found :(')
+        print('No solution found.')
     else:
         result.print_board()
 
     end_time = time()
-    print('time: ', end_time-start_time)
+    print(f'\nTime: {end_time-start_time} seconds')
 
 
 
 def backTrack(state, vd):
-    if not is_consistent(state):
-        return FAIL
     if check_termination(state):
         return state
 
-    # Select next empty cell
+    # Apply AC3
+    new_vd, contradiction = vd.ac3(state.board)
+    if contradiction:
+        return FAIL
+    vd = new_vd
+
+    # Select next variable
     # i, j = state.next_empty_cell()
     i, j = vd.mrv(state.board)
-    # if i == None:
-    #     return FAIL
+    if i == None:
+        return FAIL
 
-    for val in vd.get_domain(i ,j):
+    # for val in vd.get_domain(i ,j):
+    for val in vd.get_domain_sorted_by_lcv(state.board, i ,j):
         state.board[i][j].set_val(val)
         new_vd = vd.set_val(state.board, i, j, val)
         if not new_vd.any_empty():
@@ -97,7 +95,7 @@ def backTrackNormal(state):
     if check_termination(state):
         return state
 
-    # Select next empty cell
+    # Select next variable
     i, j = state.next_empty_cell()
 
     for val in state.board[i][j].domain:

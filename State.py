@@ -42,7 +42,6 @@ class State:
                 else:
                     print(line,end='')
                     print(end='  ')
-
             print()
 
 
